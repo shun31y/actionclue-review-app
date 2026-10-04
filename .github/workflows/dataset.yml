@@ -1,0 +1,31 @@
+name: Publish dataset pointer
+on:
+  push:
+    branches: [main]
+    paths: ['datasets/actionclue/**', 'scripts/publish_dataset.py', 'app/dataset.py', '.github/workflows/dataset.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dataset-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: vars.AZURE_DATA_CLIENT_ID != ''
+    runs-on: ubuntu-latest
+    environment: azure-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_DATA_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: python -m scripts.publish_dataset
