@@ -22,6 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
       - run: node tests/test_ui.js
       - run: python -m unittest discover -s tests -v
       - run: python -m compileall -q app scripts
@@ -38,7 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt --target .python_packages/lib/site-packages
+      - run: pip install --no-compile -r requirements.txt --target .python_packages/lib/site-packages
       - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_APP_CLIENT_ID }}

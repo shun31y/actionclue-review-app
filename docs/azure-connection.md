@@ -24,8 +24,15 @@ remain visible as warnings and have not been silently repaired.
 Both manifests and metadata stay in private Blob storage under
 `ActionClue/actionclue/v1.0.1/`. `audit.json` records the source-file mapping,
 original SHA256 hashes, and duration checks. Git tracks the current pointer.
-The first QA has prepared Oracle/full browser previews, with validated frame
-counts of 64/2357. Preparing the remaining previews is still required before
+The initial preview recipe inherited the native source frame rate, making the
+encoded durations too short despite matching frame counts. Recipe
+`sample3-h264-v2` explicitly fixes output rate and verifies frame count, rate,
+and duration before upload. Its distinct media keys retain the old previews
+without serving them. A real FFmpeg regression test checks source-sample order
+using a 25fps video and both 3fps preview views.
+
+The first QA's corrected Oracle/full previews contain 64/2357 frames, with
+durations 21.333333/785.666667 seconds. Preparing the remaining previews is required before
 the entire dataset can be reviewed.
 
 ## GitHub OIDC setup pending approval
@@ -47,6 +54,11 @@ After creating the identities, set repository/environment variables:
 `AZURE_APP_CLIENT_ID`, `AZURE_DATA_CLIENT_ID`, `AZURE_TENANT_ID`,
 `AZURE_SUBSCRIPTION_ID`, and `AZURE_WEBAPP_NAME`. No client secret is required.
 The dataset workflow uses `azure-datasets` and refuses non-main dispatches.
+
+Blob dataset retrieval and isolated table write/read have been verified using
+the application identity. The table connectivity marker uses partition
+`__connectivity_checks__`, which is excluded from all dataset-review queries.
+No QA judgment was created by the connectivity test.
 
 The initial deployment and dataset publication were performed manually using
 the owner's Azure Cloud Shell session. GitHub-to-Azure deployment has not yet

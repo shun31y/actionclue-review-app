@@ -6,10 +6,10 @@ import argparse
 import hashlib
 import os
 from pathlib import Path
-import subprocess
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from app.dataset import load_dataset, blob_path, media_key
+from app.media import prepare_preview
 
 p=argparse.ArgumentParser()
 p.add_argument('directory',type=Path)
@@ -41,22 +41,8 @@ for row in rows[:a.limit or len(rows)]:
             with temp.open('wb') as f:
                 source.download_blob(etag=etag,match_condition=__import__('azure.core',fromlist=['MatchConditions']).MatchConditions.IfNotModified).readinto(f)
             temp.replace(local)
-        fps=f"{m['sampling_fps_numerator']}/{m['sampling_fps_denominator']}"
-        if view=='oracle':
-            indices=q['oracle_frame_indices_in_source']
-            if len(set(indices))!=len(indices) or indices!=sorted(indices):
-                raise ValueError('Oracle source indices must be strictly increasing')
-            selection='+'.join(f'eq(n\\,{i})' for i in indices)
-            count=len(indices)
-        else:
-            selection=f"between(n\\,{m['clip_start_frame']}\\,{m['clip_end_frame_exclusive']-1})"
-            count=m['clip_frame_count']
         outfile=a.cache/(key.rsplit('/',1)[1])
-        filters=f'fps=fps={fps}:start_time=0:round=near,select={selection},setpts=N/({fps}*TB),scale=1280:960:force_original_aspect_ratio=decrease,pad=1280:960:(ow-iw)/2:(oh-ih)/2,setsar=1'
-        subprocess.run(['ffmpeg','-nostdin','-y','-v','error','-i',str(local),'-an','-vf',filters,'-frames:v',str(count),'-c:v','libx264','-preset','fast','-crf','23','-pix_fmt','yuv420p','-movflags','+faststart',str(outfile)],check=True)
-        actual=int(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0','-count_frames','-show_entries','stream=nb_read_frames','-of','default=noprint_wrappers=1:nokey=1',str(outfile)]))
-        if actual!=count:
-            raise ValueError(f'Expected {count} frames, got {actual}')
+        info=prepare_preview(local,outfile,row,view)
         with outfile.open('rb') as f:
-            dest.upload_blob(f,overwrite=False,metadata={'source_hash':source_hash},content_settings=ContentSettings(content_type='video/mp4',cache_control='private, max-age=86400'))
-        print(f"Prepared {m['id']} {view}: {actual} frames")
+            dest.upload_blob(f,overwrite=False,metadata={'source_hash':source_hash,'frames':str(info['frames']),'fps':info['fps'],'duration_sec':str(info['duration_sec'])},content_settings=ContentSettings(content_type='video/mp4',cache_control='private, max-age=86400'))
+        print(f"Prepared {m['id']} {view}: {info}")

@@ -76,8 +76,9 @@ Install requirements and ffmpeg on a workstation/VM with Azure access. Run
 `python -m scripts.prepare_media local-data --version 1.0.0 --limit 1` to verify one
 QA. After checking it, use `--limit 0` for all. Source videos are downloaded once
 per unique source/ETag into local cache; source files are never overwritten.
-The outputs are immutable H.264 MP4 clips, and frame counts are checked with
-ffprobe. Output metadata detects changes to previously processed source files.
+The outputs are immutable H.264 MP4 clips. Frame counts, frame rate and duration
+are checked with ffprobe; output fps is explicitly fixed to the dataset rate.
+Output metadata detects changes to previously processed source files.
 Current source URLs are not content-addressed; retain/lock source blobs to ensure
 old releases remain reproducible. Full conversion of 475 sources needs compute,
 disk and storage budgeting and is separate from the web app.
