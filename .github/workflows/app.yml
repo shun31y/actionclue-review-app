@@ -47,12 +47,17 @@ jobs:
       - name: Use bundled Python dependencies
         env:
           ACTIONCLUE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
-        run: >-
-          az webapp config appsettings set
-          --resource-group youtube-collection
-          --name "$ACTIONCLUE_WEBAPP_NAME"
-          --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
-          --output none
+        run: |
+          az webapp config appsettings set \
+            --resource-group youtube-collection \
+            --name "$ACTIONCLUE_WEBAPP_NAME" \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false \
+            --output none
+          az webapp config set \
+            --resource-group youtube-collection \
+            --name "$ACTIONCLUE_WEBAPP_NAME" \
+            --startup-file 'gunicorn --pythonpath=/home/site/wwwroot/.python_packages/lib/site-packages --bind=0.0.0.0:8000 --workers=2 --timeout=120 app.server:application' \
+            --output none
       - uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}

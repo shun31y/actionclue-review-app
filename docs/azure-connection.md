@@ -54,7 +54,8 @@ been verified; the OIDC grants and GitHub variables are still pending.
 
 Runtime packaging includes requirements in `.python_packages/lib/site-packages`
 for Python 3.12. App Service build flags are disabled to use that uploaded
-dependency tree. The app workflow applies the same settings before deployment.
+dependency tree. Gunicorn's `--pythonpath` explicitly includes that directory.
+The app workflow applies the build flags and startup command before deployment.
 
 References:
 - [App Service GitHub Actions deployment](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions)

@@ -40,7 +40,7 @@ Azure media is deliberately unavailable in local data-only mode.
 ## Azure deployment prerequisites
 
 - Linux App Service, Python 3.12, one or more instances.
-- Startup: `PYTHONPATH=/home/site/wwwroot/.python_packages/lib/site-packages gunicorn --bind=0.0.0.0:8000 --workers=2 --timeout=120 app.server:application`.
+- Startup: `gunicorn --pythonpath=/home/site/wwwroot/.python_packages/lib/site-packages --bind=0.0.0.0:8000 --workers=2 --timeout=120 app.server:application`.
 - Bundle requirements into `.python_packages/lib/site-packages` using Python
   3.12. Set `SCM_DO_BUILD_DURING_DEPLOYMENT=false` and `ENABLE_ORYX_BUILD=false`;
   the deployment workflow builds dependencies before uploading the package.
