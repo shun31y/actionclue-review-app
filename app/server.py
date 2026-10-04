@@ -100,6 +100,8 @@ def application(environ,start):
             reviews = [r for r in all_reviews(version,who) if r['qa_id']==qa]
             return respond(start,'200 OK',{'version':version,**row,'review':reviews[0] if reviews else None})
         if path == '/api/media' and method == 'GET' and row:
+            if args.get('version',[version])[0] != version:
+                return respond(start,'409 Conflict',{'error':'Dataset version changed. Reload before playing.'})
             view = args.get('view',['oracle'])[0]
             if view not in ('oracle','full'):
                 return respond(start,'400 Bad Request',{'error':'Invalid view'})
