@@ -101,3 +101,15 @@ Local schema/security regression tests and supplied data validation. Azure
 provisioning, Easy Auth, OIDC, media preparation and live deployment still require
 setup and end-to-end verification. Creating paid Azure resources is not performed
 by these files.
+
+## キーボードでのレビュー
+
+デスクトップでは動画とQAを左右に配置し、画面内でレビューします。データソースの選択はありません。
+
+- `A`: Acceptを保存して次のQAへ。4つの品質基準をすべて満たす判定です。
+- `R`: Rejectを保存して次のQAへ。保存に失敗した場合は現在のQAに留まります。
+- `E`: 根拠区間を順にジャンプして再生。Oracle表示中は全体クリップに切り替え、source frame indicesから時刻を計算します。
+- `Space`: 再生・停止。`←` / `→`: 前・次のQA。
+- `C`: コメント入力。`Esc`: 入力を終了してショートカット操作へ戻る。入力中やキーの長押しでは判定しません。
+
+最終QAの保存後はその場に留まります。スマートフォン幅では読みやすさのため縦に並べます。
