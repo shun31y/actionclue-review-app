@@ -11,9 +11,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
-    if: vars.AZURE_DATA_CLIENT_ID != ''
+    if: github.ref == 'refs/heads/main' && vars.AZURE_DATA_CLIENT_ID != ''
     runs-on: ubuntu-latest
-    environment: azure-production
+    environment: azure-datasets
     permissions:
       contents: read
       id-token: write
