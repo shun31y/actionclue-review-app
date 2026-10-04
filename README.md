@@ -41,6 +41,9 @@ Azure media is deliberately unavailable in local data-only mode.
 
 - Linux App Service, Python 3.12, one or more instances.
 - Startup: `PYTHONPATH=/home/site/wwwroot/.python_packages/lib/site-packages gunicorn --bind=0.0.0.0:8000 --workers=2 --timeout=120 app.server:application`.
+- Bundle requirements into `.python_packages/lib/site-packages` using Python
+  3.12. Set `SCM_DO_BUILD_DURING_DEPLOYMENT=false` and `ENABLE_ORYX_BUILD=false`;
+  the deployment workflow builds dependencies before uploading the package.
 - App Service authentication (Easy Auth): require authentication, Microsoft Entra
   tenant `789acfad-6fe0-4cdb-975a-04ab117882ae`. The app depends on Easy Auth
   stripping untrusted identity headers. Never expose it behind an untrusted
@@ -57,9 +60,9 @@ Azure media is deliberately unavailable in local data-only mode.
   contributor can modify other blobs in `video-container`; use a custom role with
   an Azure ABAC condition limiting writes to `ActionClue/actionclue/`.
 - App deployment identity: Website Contributor scoped to this app only.
-- Use separate GitHub OIDC identities for app and data publishing, restricted to
-  `repo:shun31y/actionclue-review-app:environment:azure-production`; protect the
-  environment/main branch before enabling CI.
+- Use separate GitHub OIDC identities/environments: `azure-production` for the
+  app and `azure-datasets` for dataset publishing. Restrict both environments
+  to `main` before enabling CI. Exact subjects/scopes are in `infra/`.
 
 GitHub variables: `AZURE_WEBAPP_NAME`, `AZURE_APP_CLIENT_ID`,
 `AZURE_DATA_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`.
@@ -97,10 +100,11 @@ reviews. Media URLs expire after 30 minutes; reopen the player to refresh them.
 
 ## Verified so far
 
-Local schema/security regression tests and supplied data validation. Azure
-provisioning, Easy Auth, OIDC, media preparation and live deployment still require
-setup and end-to-end verification. Creating paid Azure resources is not performed
-by these files.
+Local schema/security regression tests and supplied data validation pass. Azure
+resources, Easy Auth, and app managed-identity roles are configured. Dataset
+v1.0.1 is published, and initial preview frame counts are validated. Full-dataset
+preview preparation, live review-save verification, and GitHub OIDC remain
+pending. See [Azure connection status](docs/azure-connection.md) for details.
 
 ## キーボードでのレビュー
 

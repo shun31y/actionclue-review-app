@@ -52,6 +52,10 @@ The initial deployment and dataset publication were performed manually using
 the owner's Azure Cloud Shell session. GitHub-to-Azure deployment has not yet
 been verified; the OIDC grants and GitHub variables are still pending.
 
+Runtime packaging includes requirements in `.python_packages/lib/site-packages`
+for Python 3.12. App Service build flags are disabled to use that uploaded
+dependency tree. The app workflow applies the same settings before deployment.
+
 References:
 - [App Service GitHub Actions deployment](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions)
 - [Blob path conditions](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-auth-abac-examples)
