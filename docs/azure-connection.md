@@ -36,7 +36,7 @@ durations 21.333333/785.666667 seconds. The second QA has 64/1408 frames
 (21.333333/469.333333 seconds). Both full clips and evidence jumps were verified
 in the live browser. Five v2 previews are uploaded (two full and three Oracle).
 The third full clip failed validation with 1627 rather than 1628 frames and was
-not uploaded. That end-of-source discrepancy still needs diagnosis. Preparing
+not uploaded. That frame-count discrepancy still needs diagnosis. Preparing
 the remaining previews is required before the entire dataset can be reviewed.
 
 ## GitHub OIDC connection
@@ -71,7 +71,11 @@ The dataset workflow authenticated through OIDC and published v1.0.1 with all
 1,200 records on 2026-10-05. It checks all 475 distinct source paths, keeps the
 release files immutable, and updates the pointer without deploying the app.
 [Verified dataset run](https://github.com/shun31y/actionclue-review-app/actions/runs/37310461986).
-The app deployment workflow is being verified separately.
+The app workflow also authenticated through OIDC, passed application validation,
+and deployed successfully on 2026-10-05.
+[Verified app run](https://github.com/shun31y/actionclue-review-app/actions/runs/37310380359).
+After deployment, the live app loaded v1.0.1 and played the first full clip;
+keyboard evidence jumps and the 1363 by 936 desktop layout were checked.
 
 Runtime packaging includes requirements in `.python_packages/lib/site-packages`
 for Python 3.12. App Service build flags are disabled to use that uploaded

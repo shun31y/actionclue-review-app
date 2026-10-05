@@ -106,8 +106,8 @@ resources, Easy Auth, and app managed-identity roles are configured. Dataset
 v1.0.1 is published through the GitHub dataset workflow using OIDC. Both GitHub
 environments allow only `main`, and the five connection variables are configured.
 Two full clips, three Oracle previews, live evidence jumps and the desktop layout
-are verified. Full-dataset preview preparation, live QA judgment-save verification,
-and the GitHub app deployment remain pending. See [Azure connection status](docs/azure-connection.md) for details.
+are verified. The GitHub app workflow passed validation and deployed successfully using OIDC.
+Full-dataset preview preparation and live QA judgment-save verification remain pending. See [Azure connection status](docs/azure-connection.md) for details.
 
 ## キーボードでのレビュー
 
