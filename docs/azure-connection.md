@@ -34,10 +34,17 @@ using a 25fps video and both 3fps preview views.
 The first QA's corrected Oracle/full previews contain 64/2357 frames, with
 durations 21.333333/785.666667 seconds. The second QA has 64/1408 frames
 (21.333333/469.333333 seconds). Both full clips and evidence jumps were verified
-in the live browser. Five v2 previews are uploaded (two full and three Oracle).
-The third full clip failed validation with 1627 rather than 1628 frames and was
-not uploaded. That frame-count discrepancy still needs diagnosis. Preparing
-the remaining previews is required before the entire dataset can be reviewed.
+in the live browser. Five validated v2 previews remain available (two full and three Oracle).
+The third full clip's mismatch was diagnosed against the actual source, which
+lasts 748.469388 seconds. EOF rounding produced 2245 source samples; setting
+`eof_action=pass` produced 2246, with identical hashes for all 2245 shared samples.
+Recipe `sample3-h264-v3` keeps that valid final sample and still rejects genuinely
+out-of-source requests. New keys preserve immutable v2 outputs; playback prefers
+v3 and falls back to validated v2, never to the incorrect native-rate v1.
+The third v3 full/Oracle clips were validated and uploaded: 1628/64 frames,
+542.666667/21.333333 seconds. Preparing the remaining previews is still required.
+The 475 source blobs total 463.59 GiB; the largest is 4.34 GiB. Grouped processing
+can discard each local source after its QA rows while retaining uploaded progress.
 
 ## GitHub OIDC connection
 

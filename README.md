@@ -79,6 +79,19 @@ per unique source/ETag into local cache; source files are never overwritten.
 The outputs are immutable H.264 MP4 clips. Frame counts, frame rate and duration
 are checked with ffprobe; output fps is explicitly fixed to the dataset rate.
 Output metadata detects changes to previously processed source files.
+Recipe v3 retains a valid final source sample at fractional EOF; validated v2
+previews remain playable during preparation. To process all rows with bounded
+local source storage, resume safely, and continue past individual failures:
+
+```bash
+python -m scripts.prepare_media local-data --version 1.0.1 --limit 0 \
+  --discard-source-after-group --keep-going --report progress.jsonl
+```
+
+Uploaded views are skipped on rerun after checking their source hash. Outputs are
+removed locally after each view; source cleanup is opt-in and never touches Blob
+sources. The private progress report contains QA IDs and failures; do not commit
+it to this public repository. The command exits nonzero if any view failed.
 Current source URLs are not content-addressed; retain/lock source blobs to ensure
 old releases remain reproducible. Full conversion of 475 sources needs compute,
 disk and storage budgeting and is separate from the web app.
