@@ -32,13 +32,19 @@ without serving them. A real FFmpeg regression test checks source-sample order
 using a 25fps video and both 3fps preview views.
 
 The first QA's corrected Oracle/full previews contain 64/2357 frames, with
-durations 21.333333/785.666667 seconds. Preparing the remaining previews is required before
-the entire dataset can be reviewed.
+durations 21.333333/785.666667 seconds. The second QA has 64/1408 frames
+(21.333333/469.333333 seconds). Both full clips and evidence jumps were verified
+in the live browser. Five v2 previews are uploaded (two full and three Oracle).
+The third full clip failed validation with 1627 rather than 1628 frames and was
+not uploaded. That frame-count discrepancy still needs diagnosis. Preparing
+the remaining previews is required before the entire dataset can be reviewed.
 
-## GitHub OIDC setup pending approval
+## GitHub OIDC connection
 
 `infra/github-oidc-plan.json` defines two secretless identities with separate
-GitHub environments. Restrict both environments to deployments from `main`.
+GitHub environments. Both are configured with one allowed branch (`main`) and no allowed tags.
+The observed GitHub OIDC subjects contain owner/repository IDs; the exact strings
+in `infra/github-oidc-plan.json` match Azure's federated credentials.
 
 | Environment | Identity | Access |
 | --- | --- | --- |
@@ -50,7 +56,8 @@ The custom role and its ABAC condition are in `infra/`. It reads only
 does not grant blob deletion, movement, account keys, review table access, or
 source-video writes. Both role definition and condition must be applied together.
 
-After creating the identities, set repository/environment variables:
+Both identities and their scoped role assignments are created and verified.
+The following repository variables are configured:
 `AZURE_APP_CLIENT_ID`, `AZURE_DATA_CLIENT_ID`, `AZURE_TENANT_ID`,
 `AZURE_SUBSCRIPTION_ID`, and `AZURE_WEBAPP_NAME`. No client secret is required.
 The dataset workflow uses `azure-datasets` and refuses non-main dispatches.
@@ -60,9 +67,15 @@ the application identity. The table connectivity marker uses partition
 `__connectivity_checks__`, which is excluded from all dataset-review queries.
 No QA judgment was created by the connectivity test.
 
-The initial deployment and dataset publication were performed manually using
-the owner's Azure Cloud Shell session. GitHub-to-Azure deployment has not yet
-been verified; the OIDC grants and GitHub variables are still pending.
+The dataset workflow authenticated through OIDC and published v1.0.1 with all
+1,200 records on 2026-10-05. It checks all 475 distinct source paths, keeps the
+release files immutable, and updates the pointer without deploying the app.
+[Verified dataset run](https://github.com/shun31y/actionclue-review-app/actions/runs/37310461986).
+The app workflow also authenticated through OIDC, passed application validation,
+and deployed successfully on 2026-10-05.
+[Verified app run](https://github.com/shun31y/actionclue-review-app/actions/runs/37310380359).
+After deployment, the live app loaded v1.0.1 and played the first full clip;
+keyboard evidence jumps and the 1363 by 936 desktop layout were checked.
 
 Runtime packaging includes requirements in `.python_packages/lib/site-packages`
 for Python 3.12. App Service build flags are disabled to use that uploaded

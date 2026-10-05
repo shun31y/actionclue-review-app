@@ -103,9 +103,11 @@ reviews. Media URLs expire after 30 minutes; reopen the player to refresh them.
 
 Local schema/security regression tests and supplied data validation pass. Azure
 resources, Easy Auth, and app managed-identity roles are configured. Dataset
-v1.0.1 is published, and initial preview frame counts are validated. Full-dataset
-preview preparation, live review-save verification, and GitHub OIDC remain
-pending. See [Azure connection status](docs/azure-connection.md) for details.
+v1.0.1 is published through the GitHub dataset workflow using OIDC. Both GitHub
+environments allow only `main`, and the five connection variables are configured.
+Two full clips, three Oracle previews, live evidence jumps and the desktop layout
+are verified. The GitHub app workflow passed validation and deployed successfully using OIDC.
+Full-dataset preview preparation and live QA judgment-save verification remain pending. See [Azure connection status](docs/azure-connection.md) for details.
 
 ## キーボードでのレビュー
 
