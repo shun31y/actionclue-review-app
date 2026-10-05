@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import parse_qs
 from wsgiref.simple_server import make_server
-from app.dataset import load_dataset, media_key
+from app.dataset import load_dataset, media_candidates
 
 ROOT = Path(__file__).parent
 LOCAL = os.getenv('LOCAL_MODE') == '1'
@@ -108,8 +108,9 @@ def application(environ,start):
             if LOCAL:
                 return respond(start,'404 Not Found',{'error':'Media unavailable in local data-only mode'})
             blobs,_ = clients()
-            key = media_key(row,view)
-            if not blobs.get_blob_client(MEDIA_CONTAINER,key).exists():
+            key = next((candidate for candidate in media_candidates(row,view)
+                        if blobs.get_blob_client(MEDIA_CONTAINER,candidate).exists()), None)
+            if key is None:
                 return respond(start,'404 Not Found',{'error':'Browser preview has not been prepared yet.'})
             from azure.storage.blob import generate_blob_sas, BlobSasPermissions
             now = datetime.now(timezone.utc)
