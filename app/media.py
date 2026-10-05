@@ -19,7 +19,9 @@ def prepare_preview(source, output, row, view):
         count = m['clip_frame_count']
     else:
         raise ValueError('Invalid preview view')
-    filters = (f'fps=fps={rate}:start_time=0:round=near,select={selection},'
+    # Keep the final sample when its timestamp is still inside source duration.
+    # Rounding EOF to nearest can otherwise drop a valid last dataset sample.
+    filters = (f'fps=fps={rate}:start_time=0:round=near:eof_action=pass,select={selection},'
                f'setpts=N/({rate}*TB),scale=1280:960:force_original_aspect_ratio=decrease,'
                'pad=1280:960:(ow-iw)/2:(oh-ih)/2,setsar=1')
     subprocess.run(['ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', str(source),

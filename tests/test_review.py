@@ -4,10 +4,13 @@ import importlib
 import io
 import json
 import os
+import sys
+from types import SimpleNamespace
+from unittest.mock import patch
 from pathlib import Path
 import tempfile
 import unittest
-from app.dataset import blob_path, load_dataset
+from app.dataset import blob_path, load_dataset, media_candidates
 
 def data():
     q={'id':'example:1','benchmark_version':'1.0.0','question':'What follows?','choices':['A1','B1','C1','D1'],'right_answer':'A','answer':'A1','oracle_frame_count':2,'oracle_frame_indices_in_source':[4,5],'oracle_frame_indices_in_clip':[1,2]}
@@ -46,5 +49,32 @@ class ReviewTests(unittest.TestCase):
         b=self.body();b['checks']['unique_anchor']=False;self.assertEqual(self.request(b)[0],'400 Bad Request')
     def test_review_identity_and_version(self):
         self.assertEqual(self.request(self.body())[0],'200 OK');r=self.server.all_reviews('1.0.0','local-reviewer');self.assertEqual(r[0]['reviewer_id'],'local-reviewer');self.assertEqual(self.server.all_reviews('2.0.0','local-reviewer'),[])
+
+    def test_media_prefers_v3_and_keeps_verified_v2_available(self):
+        m,q=data();row=load_dataset(m,q,'1.0.0')[0]
+        v3,v2=media_candidates(row,'full')
+        self.assertNotEqual(v3,v2)
+        storage=SimpleNamespace(generate_blob_sas=lambda *a,**kw:'test-token',
+                                BlobSasPermissions=lambda **kw:kw)
+        for available,expected in [({v3,v2},v3),({v2},v2),(set(),None)]:
+            with self.subTest(available=available):
+                blobs=SimpleNamespace(get_blob_client=lambda container,key:
+                    SimpleNamespace(exists=lambda:key in available),
+                    get_user_delegation_key=lambda *a:object())
+                e={'PATH_INFO':'/api/media','REQUEST_METHOD':'GET',
+                   'QUERY_STRING':'id=example%3A1&version=1.0.0&view=full'}
+                status=[]
+                with patch.object(self.server,'LOCAL',False), \
+                     patch.object(self.server,'reviewer',return_value='test-reviewer'), \
+                     patch.object(self.server,'snapshot',return_value=('1.0.0',[row])), \
+                     patch.object(self.server,'clients',return_value=(blobs,None)), \
+                     patch.dict(sys.modules,{'azure.storage.blob':storage}):
+                    result=self.server.application(e,lambda s,h:status.append(s))
+                body=json.loads(b''.join(result))
+                if expected:
+                    self.assertEqual(status[0],'200 OK')
+                    self.assertIn('/'+expected+'?',body['url'])
+                else:
+                    self.assertEqual(status[0],'404 Not Found')
 
 if __name__=='__main__':unittest.main()

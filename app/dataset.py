@@ -53,7 +53,12 @@ def load_dataset(manifest_bytes, meta_bytes, version):
         raise ValueError('Manifest/meta row counts differ')
     return rows
 
-def media_key(row, view):
+def media_key(row, view, recipe='sample3-h264-v3'):
     # Depends on exact data and source path; conversion never changes released data.
-    signature = json.dumps({'manifest':row['manifest'], 'view':view, 'recipe':'sample3-h264-v2'},sort_keys=True,separators=(',',':'))
+    signature = json.dumps({'manifest':row['manifest'], 'view':view, 'recipe':recipe},sort_keys=True,separators=(',',':'))
     return 'browser-media/' + hashlib.sha256(signature.encode()).hexdigest() + '.mp4'
+
+def media_candidates(row, view):
+    # v2 outputs passed the same count/rate/duration checks; retain them while
+    # v3 media is prepared. Never fall back to the incorrect native-rate v1.
+    return (media_key(row, view), media_key(row, view, 'sample3-h264-v2'))
