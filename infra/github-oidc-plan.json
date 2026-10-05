@@ -1,0 +1,27 @@
+{
+  "tenant_id": "789acfad-6fe0-4cdb-975a-04ab117882ae",
+  "subscription_id": "c58cde0f-7a4a-4fe7-ba5f-275de8f6c5f9",
+  "repository": "shun31y/actionclue-review-app",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "audience": "api://AzureADTokenExchange",
+  "identities": [
+    {
+      "name": "actionclue-github-app-deploy",
+      "environment": "azure-production",
+      "subject": "repo:shun31y/actionclue-review-app:environment:azure-production",
+      "role": "Website Contributor",
+      "scope": "/subscriptions/c58cde0f-7a4a-4fe7-ba5f-275de8f6c5f9/resourceGroups/youtube-collection/providers/Microsoft.Web/sites/actionclue-review-shun31y",
+      "client_id_variable": "AZURE_APP_CLIENT_ID"
+    },
+    {
+      "name": "actionclue-github-dataset-publish",
+      "environment": "azure-datasets",
+      "subject": "repo:shun31y/actionclue-review-app:environment:azure-datasets",
+      "role": "ActionClue Manifest Publisher",
+      "condition_file": "infra/dataset-publisher-condition.txt",
+      "condition_version": "2.0",
+      "scope": "/subscriptions/c58cde0f-7a4a-4fe7-ba5f-275de8f6c5f9/resourceGroups/youtube-collection/providers/Microsoft.Storage/storageAccounts/collectedvideos/blobServices/default/containers/video-container",
+      "client_id_variable": "AZURE_DATA_CLIENT_ID"
+    }
+  ]
+}

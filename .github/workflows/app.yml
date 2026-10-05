@@ -22,6 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
       - run: node tests/test_ui.js
       - run: python -m unittest discover -s tests -v
       - run: python -m compileall -q app scripts
@@ -38,12 +39,26 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt --target .python_packages/lib/site-packages
+      - run: pip install --no-compile -r requirements.txt --target .python_packages/lib/site-packages
       - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_APP_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Use bundled Python dependencies
+        env:
+          ACTIONCLUE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+        run: |
+          az webapp config appsettings set \
+            --resource-group youtube-collection \
+            --name "$ACTIONCLUE_WEBAPP_NAME" \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false \
+            --output none
+          az webapp config set \
+            --resource-group youtube-collection \
+            --name "$ACTIONCLUE_WEBAPP_NAME" \
+            --startup-file 'gunicorn --pythonpath=/home/site/wwwroot/.python_packages/lib/site-packages --bind=0.0.0.0:8000 --workers=2 --timeout=120 app.server:application' \
+            --output none
       - uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}

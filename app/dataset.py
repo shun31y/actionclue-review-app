@@ -55,5 +55,5 @@ def load_dataset(manifest_bytes, meta_bytes, version):
 
 def media_key(row, view):
     # Depends on exact data and source path; conversion never changes released data.
-    signature = json.dumps({'manifest':row['manifest'], 'view':view, 'recipe':'sample3-h264-v1'},sort_keys=True,separators=(',',':'))
+    signature = json.dumps({'manifest':row['manifest'], 'view':view, 'recipe':'sample3-h264-v2'},sort_keys=True,separators=(',',':'))
     return 'browser-media/' + hashlib.sha256(signature.encode()).hexdigest() + '.mp4'

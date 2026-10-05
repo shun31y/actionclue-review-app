@@ -1,0 +1,14 @@
+{
+  "Name": "ActionClue Manifest Publisher",
+  "IsCustom": true,
+  "Description": "Read ActionClue source manifests/videos and publish manifests/current with a path condition; no delete, move, table, or account-key permissions.",
+  "Actions": [],
+  "NotActions": [],
+  "DataActions": [
+    "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read",
+    "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/write",
+    "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/add/action"
+  ],
+  "NotDataActions": [],
+  "AssignableScopes": ["/subscriptions/c58cde0f-7a4a-4fe7-ba5f-275de8f6c5f9/resourceGroups/youtube-collection"]
+}
